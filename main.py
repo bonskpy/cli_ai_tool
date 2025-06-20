@@ -3,9 +3,7 @@ from google.genai import types
 from dotenv import load_dotenv
 import os
 import sys
-
-
-MODEL_ID = "gemini-2.5-flash"  #  ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.5-flash-lite-preview-06-17"]
+import config
 
 
 def main():
@@ -30,7 +28,7 @@ def main():
     load_dotenv()
     gem_api_key = os.environ.get("GEMINI_API_KEY")
     client = genai.Client(api_key=gem_api_key)
-    response = client.models.generate_content(model=MODEL_ID, contents=contents)
+    response = client.models.generate_content(model=config.MODEL_ID, contents=contents)
 
     if response.usage_metadata and response.text:
         if verbose:

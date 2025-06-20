@@ -15,12 +15,14 @@ def get_files_info(
         common_path = os.path.commonpath([working_directory_abspath, directory_abspath])
 
         if common_path != working_directory_abspath:
+            print("--- error ---")
             print(
                 f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
             )
             return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
 
         if not os.path.isdir(directory_abspath):
+            print("--- error ---")
             print(f'Error: "{directory}" is not a directory')
             return f'Error: "{directory}" is not a directory'
 
@@ -45,10 +47,9 @@ def get_files_info(
     return "\n".join(file_info)
 
 
-# - README.md: file_size=1032 bytes, is_dir=False
-# - src: file_size=128 bytes, is_dir=True
-# - package.json: file_size=1234 bytes, is_dir=False
-
 # test
 get_files_info("calculator", directory="pkg", verbose=True)
 get_files_info("calculator", verbose=True)
+get_files_info("calculator", "../", verbose=True)
+get_files_info("calculator", "/bin", verbose=True)
+get_files_info("calculator", ".", verbose=True)
