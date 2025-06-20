@@ -1,10 +1,12 @@
 import os
-import config
 
 
 def get_file_content(
-    working_directory: str, file_path: str | None = None, verbose: bool = False
-) -> str | None:
+    working_directory: str,
+    file_path: str | None = None,
+    max_chars: int = 10000,
+    verbose: bool = False,
+) -> str:
 
     working_directory_abspath: str = os.path.abspath(working_directory)
 
@@ -26,15 +28,20 @@ def get_file_content(
         print(f'Error: File not found or is not a regular file: "{file_path}"')
         return f'Error: File not found or is not a regular file: "{file_path}"'
 
-    with open(file_abspath, "r", encoding="utf-8") as f:
-        file_content = (
-            f.read(config.MAX_CHARS)
-            + f'[...File "{file_path}" truncated at 10000 characters]'
-        )
+    try:
+        with open(file_abspath, "r", encoding="utf-8") as f:
+            file_content = f.read(max_chars)
+            if len(file_content) == max_chars:
+                file_content += f'[...File "{file_path}" truncated at 10000 characters]'
+        if verbose:
+            print(f'File "{file_path}": {len(file_content)} characters read.')
+        return file_content
+    except OSError as err:
+        print(f"Error: Failed to open {file_path}: {err}")
+        return f"Error: Failed to open {file_path}"
 
-    return file_content
 
-
-get_file_content("calculator", "main.py")
-get_file_content("calculator", "pkg/calculator.py")
-get_file_content("calculator", "/bin/cat")
+get_file_content("calculator", "main.py", verbose=True)
+get_file_content("calculator", "pkg/calculator.py", verbose=True)
+get_file_content("calculator", "/bin/cat", verbose=True)
+get_file_content("calculator", "lorem.txt", verbose=True)
