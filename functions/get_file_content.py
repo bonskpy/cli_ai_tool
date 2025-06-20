@@ -7,7 +7,24 @@ def get_file_content(
     max_chars: int = 10000,
     verbose: bool = False,
 ) -> str:
+    """
+    Reads the content of a file within a specified working directory.
 
+    Args:
+        working_directory (str): The base directory within which file access is permitted.
+        file_path (str | None, optional): The relative path to the file from the working directory. Defaults to None.
+        max_chars (int, optional): The maximum number of characters to read from the file. Defaults to 10000.
+        verbose (bool, optional): If True, prints additional information about the file read operation. Defaults to False.
+
+    Returns:
+        str: The content of the file up to `max_chars` characters,
+             or an error message if the file cannot be read or is outside the permitted directory.
+
+    Notes:
+        - If the file is larger than `max_chars`, the content is truncated and a notice is appended.
+        - The function prevents reading files outside the specified working directory for security.
+        - Error messages are printed and returned as strings in case of failure.
+    """
     working_directory_abspath: str = os.path.abspath(working_directory)
 
     file_abspath: str = os.path.abspath(
@@ -41,7 +58,7 @@ def get_file_content(
         return f"Error: Failed to open {file_path}"
 
 
-get_file_content("calculator", "main.py", verbose=True)
-get_file_content("calculator", "pkg/calculator.py", verbose=True)
-get_file_content("calculator", "/bin/cat", verbose=True)
-get_file_content("calculator", "lorem.txt", verbose=True)
+# get_file_content("calculator", "main.py", verbose=True)
+# get_file_content("calculator", "pkg/calculator.py", verbose=True)
+# get_file_content("calculator", "/bin/cat", verbose=True)
+# get_file_content("calculator", "lorem.txt", verbose=True)

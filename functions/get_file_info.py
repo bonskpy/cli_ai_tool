@@ -4,7 +4,22 @@ import os
 def get_files_info(
     working_directory: str, directory: str | None = None, verbose: bool = False
 ) -> str:
+    """
+    Lists information about files and directories within a specified directory.
 
+    Args:
+        working_directory (str): The root directory within which file listing is permitted.
+        directory (str | None, optional): The subdirectory (relative to working_directory) to list. Defaults to None.
+        verbose (bool, optional): If True, prints detailed information. Defaults to False.
+
+    Returns:
+        str: A formatted string listing each file and directory in the target directory,
+        including file size (in bytes) and whether it is a directory. Returns an error message
+        if the directory is invalid or outside the permitted working directory.
+
+    Notes:
+        - Errors are returned as strings for AI to digest.
+    """
     working_directory_abspath: str = os.path.abspath(working_directory)
 
     if directory:
