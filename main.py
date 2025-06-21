@@ -3,7 +3,8 @@ from google.genai import types
 from dotenv import load_dotenv
 import os
 import sys
-import config
+import settings
+from available_functions import available_functions
 
 
 def main():
@@ -25,10 +26,22 @@ def main():
 
     contents: list = [types.Content(role="user", parts=[types.Part(text=user_prompt)])]
 
+    config = types.GenerateContentConfig(
+        system_instruction=settings.SYSTEM_PROMPT, tools=[available_functions]
+    )
+
     load_dotenv()
     gem_api_key = os.environ.get("GEMINI_API_KEY")
     client = genai.Client(api_key=gem_api_key)
-    response = client.models.generate_content(model=config.MODEL_ID, contents=contents)
+    response = client.models.generate_content(
+        model=settings.MODEL_ID,
+        contents=contents,
+        config=config,
+    )
+
+    if response.function_calls:
+        for call in response.function_calls:
+            print(f"Calling function: {call.name}({call.args})")
 
     if response.usage_metadata and response.text:
         if verbose:

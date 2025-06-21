@@ -1,4 +1,5 @@
 import os
+from google.genai import types
 
 
 def get_files_info(
@@ -62,9 +63,24 @@ def get_files_info(
     return "\n".join(file_info)
 
 
+schema_get_files_info = types.FunctionDeclaration(
+    name="get_files_info",
+    description="Lists files in the specified directory along with their sizes, constrained to the working directory.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "directory": types.Schema(
+                type=types.Type.STRING,
+                description="The directory to list files from, relative to the working directory. If not provided, lists files in the working directory itself.",
+            ),
+        },
+    ),
+)
+
+
 # test
-get_files_info("calculator", directory="pkg", verbose=True)
-get_files_info("calculator", verbose=True)
-get_files_info("calculator", "../", verbose=True)
-get_files_info("calculator", "/bin", verbose=True)
-get_files_info("calculator", ".", verbose=True)
+# get_files_info("calculator", directory="pkg", verbose=True)
+# get_files_info("calculator", verbose=True)
+# get_files_info("calculator", "../", verbose=True)
+# get_files_info("calculator", "/bin", verbose=True)
+# get_files_info("calculator", ".", verbose=True)
