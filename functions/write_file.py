@@ -1,4 +1,5 @@
 import os
+from google.genai import types
 
 
 def write_file(
@@ -68,6 +69,24 @@ def write_file(
             print(f"Error: Failed to write to {file_path}: {err}")
         return f"Error: Failed to write to {file_path}: {err}"
 
+
+schema_write_file = types.FunctionDeclaration(
+    name="write_file",
+    description="Writes the given content to a file in specified path. If file exists it will be overwritten.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The relative path to the file to write, from the working directory.",
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description="The content to write to the file.",
+            ),
+        },
+    ),
+)
 
 # write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum", verbose=True)
 # write_file(

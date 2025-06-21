@@ -1,4 +1,5 @@
 import os
+from google.genai import types
 
 
 def get_file_content(
@@ -57,6 +58,20 @@ def get_file_content(
         print(f"Error: Failed to open {file_path}: {err}")
         return f"Error: Failed to open {file_path}"
 
+
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
+    description="Reads the content of a file path up to 10000 characters.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The relative path to the file to read content from, relative to the working directory.",
+            ),
+        },
+    ),
+)
 
 # get_file_content("calculator", "main.py", verbose=True)
 # get_file_content("calculator", "pkg/calculator.py", verbose=True)
