@@ -2,10 +2,13 @@ MAX_CHARS = 10000
 MODEL_ID = "gemini-2.5-flash"  #  ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.5-flash-lite-preview-06-17"]
 SYSTEM_PROMPT = """
 You are a helpful AI coding agent.
-When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
+When a user asks a question or makes a request, make a short list of steps incorporating operations (function calls). You can perform the following operations:
 - List files and directories
 - Read file contents
 - Execute Python files with optional arguments
 - Write or overwrite files
+- Finish task
+Then execute on the steps. If you are unable to execute an operation try to find another way to reach your goal. 
 All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
 """
+SUMMARY_PROMPT = "Summarize the key points and overall outcome of the AI agent's interaction, highlighting any critical decisions or user sentiments."

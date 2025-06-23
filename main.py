@@ -58,6 +58,24 @@ def call_function(function_call_part: types.FunctionCall, verbose=False):
         )
 
 
+def summarise_interaction(
+    contents: list[types.Content],
+    system_instruction: str,
+    client: genai.Client,
+    model: str = "gemini-2.5-flash",
+):
+
+    config: types.GenerateContentConfig = types.GenerateContentConfig(
+        system_instruction=system_instruction
+    )
+
+    return client.models.generate_content(
+        model=model,
+        contents=contents,
+        config=config,
+    ).text
+
+
 def main():
 
     args: list[str] = sys.argv[1:]
@@ -77,33 +95,66 @@ def main():
 
     contents: list = [types.Content(role="user", parts=[types.Part(text=user_prompt)])]
 
-    config = types.GenerateContentConfig(
+    config: types.GenerateContentConfig = types.GenerateContentConfig(
         system_instruction=settings.SYSTEM_PROMPT, tools=[available_functions]
     )
 
     load_dotenv()
     gem_api_key = os.environ.get("GEMINI_API_KEY")
     client = genai.Client(api_key=gem_api_key)
-    response = client.models.generate_content(
-        model=settings.MODEL_ID,
-        contents=contents,
-        config=config,
+
+    counter = 0
+    while counter < 20:
+
+        response = client.models.generate_content(
+            model=settings.MODEL_ID,
+            contents=contents,
+            config=config,
+        )
+
+        if response.candidates:
+            for candidate in response.candidates:
+                contents.append(candidate.content)
+
+        if response.function_calls:
+            for call in response.function_calls:
+                func_call = call_function(call, verbose=verbose)
+                contents.append(func_call)
+
+                if not func_call.parts or not func_call.parts[0].function_response:  # type: ignore
+                    raise Exception("Empty function call result!")
+
+                if func_call.parts and func_call.parts[0].function_response and verbose:  # type: ignore
+                    print(f"-> {func_call.parts[0].function_response.response}")  # type: ignore
+
+                if not func_call:
+                    raise Exception("No function responses generated, exiting.")
+
+                counter += 1
+        else:
+            if response.usage_metadata and response.candidates:
+                if verbose:
+                    print(f"User prompt: {user_prompt}")
+                    print(
+                        f"Prompt tokens: {response.usage_metadata.prompt_token_count}"
+                    )
+                    print(
+                        f"Response tokens: {response.usage_metadata.candidates_token_count}"
+                    )
+                candidate = response.candidates[0]
+                if (
+                    candidate.content
+                    and candidate.content.parts
+                    and candidate.content.parts[0].text
+                ):
+                    print(f"Response: {candidate.content.parts[0].text.strip()}")
+            break
+
+    summary = summarise_interaction(
+        contents=contents, system_instruction=settings.SUMMARY_PROMPT, client=client
     )
 
-    if response.function_calls:
-        for call in response.function_calls:
-            # print(f"Calling function: {call.name}({call.args})")
-            func_call = call_function(call, verbose=verbose)
-
-            if func_call.parts and func_call.parts[0].function_response and verbose:
-                print(f"-> {func_call.parts[0].function_response.response}")
-
-    if response.usage_metadata and response.text:
-        if verbose:
-            print(f"User prompt: {user_prompt}")
-            print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-            print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
-        print(f"Response: {response.text.strip()}")
+    print(summary)
 
 
 if __name__ == "__main__":
