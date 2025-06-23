@@ -77,7 +77,7 @@ def run_python_file(
         return f"Error: executing Python file: {e}"
 
 
-schema_run_python_file = types.FunctionDeclaration(
+schema_run_python_file: types.FunctionDeclaration = types.FunctionDeclaration(
     name="run_python_file",
     description="Executes a Python file located in a specified path.",
     parameters=types.Schema(
@@ -90,8 +90,3 @@ schema_run_python_file = types.FunctionDeclaration(
         },
     ),
 )
-
-# run_python_file("calculator", "main.py", verbose=True)
-# run_python_file("calculator", "tests.py", verbose=True)
-# run_python_file("calculator", "../main.py", verbose=True)
-# run_python_file("calculator", "nonexistent.py", verbose=True)

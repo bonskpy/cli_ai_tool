@@ -56,14 +56,12 @@ def get_files_info(
         file_info.append(f"- {file}: file_size:{file_size} bytes, is_dir={file_is_dir}")
 
     if verbose:
-        print("--- get_files_info ---")
-        print(f"directory: {directory_abspath}")
-        print("\n".join(file_info))
-        print("-" * 20)
+        print(f"--- get_files_info: directory: {directory_abspath}")
+        print("\n".join(file_info), "\n")
     return "\n".join(file_info)
 
 
-schema_get_files_info = types.FunctionDeclaration(
+schema_get_files_info: types.FunctionDeclaration = types.FunctionDeclaration(
     name="get_files_info",
     description="Lists files in the specified directory along with their sizes, constrained to the working directory.",
     parameters=types.Schema(

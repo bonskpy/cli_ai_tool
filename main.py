@@ -8,7 +8,16 @@ from available_functions import available_functions
 
 
 def call_function(function_call_part: types.FunctionCall, verbose=False):
+    """
+    Calls a specified function from a predefined set of avialable functions.
 
+    Args:
+        function_call_part (types.FunctionCall): An object containing the name of the function to call and its arguments.
+        verbose (bool, optional): If True, prints detailed information about the function call. Defaults to False.
+
+    Returns:
+        types.Content: An object containing the result of the function call or an error message if the function is unknown.
+    """
     from functions.get_file_content import get_file_content
     from functions.get_files_info import get_files_info
     from functions.run_python_file import run_python_file
@@ -19,7 +28,7 @@ def call_function(function_call_part: types.FunctionCall, verbose=False):
     else:
         print(f" - Calling function: {function_call_part.name}")
 
-    working_directory = "./calculator"
+    working_directory = settings.WORKING_DIR
     func_name: str | None = function_call_part.name
     func_args: dict | None = function_call_part.args
 
@@ -33,7 +42,7 @@ def call_function(function_call_part: types.FunctionCall, verbose=False):
     if func_name in functions_map:
 
         func_call = functions_map[func_name](
-            working_directory=working_directory, verbose=True, **func_args  # type: ignore
+            working_directory=working_directory, verbose=verbose, **func_args  # type: ignore
         )
 
         return types.Content(
@@ -60,20 +69,43 @@ def call_function(function_call_part: types.FunctionCall, verbose=False):
 
 def summarise_interaction(
     contents: list[types.Content],
-    system_instruction: str,
+    system_instruction: str | None,
     client: genai.Client,
     model: str = "gemini-2.5-flash",
 ):
+    """\
+    Provides a brief yet comprehensive summary of the AI agent's interaction.
+
+    Args:
+        contents (list[types.Content]): A list of content objects representing the interaction to be summarized.
+        system_instruction (str): Instructions or context for the AI model to guide the summarization process.
+        client (genai.Client): The generative AI client used to interact with the model.
+        model (str, optional): The name of the AI model to use for summarization. Defaults to "gemini-2.5-flash".
+
+    Returns:
+        str: brief yet comprehensive summary of the AI agent's interaction.
+    """
+    if not system_instruction:
+        system_instruction = (
+            "Provide a brief yet comprehensive summary of the AI agent's interaction."
+        )
 
     config: types.GenerateContentConfig = types.GenerateContentConfig(
         system_instruction=system_instruction
     )
 
-    return client.models.generate_content(
-        model=model,
-        contents=contents,
-        config=config,
-    ).text
+    summary: str | None = None
+
+    try:
+        summary: str | None = client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=config,
+        ).text
+    except Exception as err:
+        print(f"Error: summary generation failed. Details: {err}")
+
+    return summary
 
 
 def main():
@@ -103,8 +135,11 @@ def main():
     gem_api_key = os.environ.get("GEMINI_API_KEY")
     client = genai.Client(api_key=gem_api_key)
 
-    counter = 0
-    while counter < 20:
+    counter: int = 0
+
+    while counter < settings.MAX_ITERS:
+
+        counter += 1
 
         response = client.models.generate_content(
             model=settings.MODEL_ID,
@@ -130,7 +165,6 @@ def main():
                 if not func_call:
                     raise Exception("No function responses generated, exiting.")
 
-                counter += 1
         else:
             if response.usage_metadata and response.candidates:
                 if verbose:

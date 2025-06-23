@@ -59,7 +59,7 @@ def get_file_content(
         return f"Error: Failed to open {file_path}"
 
 
-schema_get_file_content = types.FunctionDeclaration(
+schema_get_file_content: types.FunctionDeclaration = types.FunctionDeclaration(
     name="get_file_content",
     description="Reads the content of a file path up to 10000 characters.",
     parameters=types.Schema(

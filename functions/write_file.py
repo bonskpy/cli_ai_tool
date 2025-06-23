@@ -70,7 +70,7 @@ def write_file(
         return f"Error: Failed to write to {file_path}: {err}"
 
 
-schema_write_file = types.FunctionDeclaration(
+schema_write_file: types.FunctionDeclaration = types.FunctionDeclaration(
     name="write_file",
     description="Writes the given content to a file in specified path. If file exists it will be overwritten.",
     parameters=types.Schema(
@@ -87,9 +87,3 @@ schema_write_file = types.FunctionDeclaration(
         },
     ),
 )
-
-# write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum", verbose=True)
-# write_file(
-#     "calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet", verbose=True
-# )
-# write_file("calculator", "/tmp/temp.txt", "this should not be allowed", verbose=True)
